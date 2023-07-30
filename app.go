@@ -38,9 +38,10 @@ func (a *App) Quit() {
 }
 
 type Resource struct {
-	Name   string `json:"name"`
-	Info   string `json:"info"`
-	Target string `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Name   string   `json:"name"`
+	Info   string   `json:"info"`
+	Target string   `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Tag    []string `json:"tag"`
 }
 type Plugin struct {
 	List []Resource
@@ -51,26 +52,31 @@ var results []Resource
 func (a *App) GetInitialList() []Resource {
 	results = []Resource{}
 
+	// targetを自動生成すること
 	urls := []Resource{
 		{
 			Name:   "backend-api",
 			Info:   "/home/takeshi-miyajima/workspace_highway/product1/backend-api",
 			Target: "1. backend-api /home/takeshi-miyajima/workspace_highway/product1/backend-api",
+			Tag:    []string{"cd"},
 		},
 		{
 			Name:   "frontend-web",
 			Info:   "/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
 			Target: "2. frontend-web /home/takeshi-miyajima/workspace_highway/product1/frontend-web",
+			Tag:    []string{"cd"},
 		},
 		{
 			Name:   "workspace_highway memo",
 			Info:   "/home/takeshi-miyajima/workspace_highway/memo",
-			Target: "3. memo /home/takeshi-miyajima/workspace_highway/memo",
+			Target: "3. workspace_hiway memo /home/takeshi-miyajima/workspace_highway/memo",
+			Tag:    []string{"cd"},
 		},
 		{
 			Name:   "private memo",
 			Info:   "/home/takeshi-miyajima/private/memo",
-			Target: "4. memo /home/takeshi-miyajima/private/memo",
+			Target: "4. private memo /home/takeshi-miyajima/private/memo",
+			Tag:    []string{"cd"},
 		},
 	}
 	results = append(results, urls...)
@@ -82,6 +88,7 @@ func (a *App) Search(selected string) []Resource {
 	sources := lo.Map(results, func(r Resource, _ int) string {
 		return r.Target
 	})
+	// 単語数分、ループしてさらに絞り込む
 	filteredSources := fuzzy.FindNormalizedFold(selected, sources)
 	filteredResults := lo.FilterMap(results, func(r Resource, _ int) (Resource, bool) {
 		if lo.Contains(filteredSources, r.Target) {
