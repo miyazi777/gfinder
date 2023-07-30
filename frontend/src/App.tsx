@@ -1,24 +1,25 @@
 import {useCallback, useEffect, useState} from 'react';
 import './App.css';
-import {Exec, GetInitialList, Greet, Quit, Search} from "../wailsjs/go/main/App";
+import {Exec, GetInitialList, Quit, Search} from "../wailsjs/go/main/App";
+import {main} from "../wailsjs/go/models";
 
 function App() {
     const [selected, setSelected] = useState(0);
     const [word, setWord] = useState("");
-    const [results, setResults] = useState<string[]>([]);
+    const [results, setResults] = useState<main.Resource[]>([]);
 
     const ref = useCallback((node: HTMLDivElement | null) => {
         node?.focus()
     }, [])
 
     useEffect(() => {
-        GetInitialList().then((list: string[]) => {
+        GetInitialList().then((list) => {
             setResults(list);
         });
     }, [])
 
     const handleEnter = () => {
-        Exec(results[selected]);
+        Exec(results[selected].name);
     }
 
     const handleQuit = () => {
@@ -62,7 +63,7 @@ function App() {
             <div id="results">
                 {results.map((result, index) => (
                     <div key={index} className={`row ${index === selected ? "selected" : ""}`}>
-                        <div>{result}</div>
+                        <div>{result.name}</div>
                     </div>
                 ))}
             </div>

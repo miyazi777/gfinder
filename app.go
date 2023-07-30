@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/samber/lo"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -36,23 +37,51 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
-var results []string
+type Resource struct {
+	Name string `json:"name"`
+	Info string `json:"info"`
+}
+type Plugin struct {
+	List []Resource
+}
 
-func (a *App) GetInitialList() []string {
-	results = []string{}
+var results []Resource
 
-	urls := []string{
-		"/home/takeshi-miyajima/workspace_highway/product1/backend-api",
-		"/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
-		"/home/takeshi-miyajima/workspace_highway/memo",
-		"/home/takeshi-miyajima/private/memo",
+func (a *App) GetInitialList() []Resource {
+	results = []Resource{}
+
+	urls := []Resource{
+		{
+			Name: "/home/takeshi-miyajima/workspace_highway/product1/backend-api",
+		},
+		{
+			Name: "/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
+		},
+		{
+			Name: "/home/takeshi-miyajima/workspace_highway/memo",
+		},
+		{
+			Name: "/home/takeshi-miyajima/private/memo",
+		},
 	}
 	results = append(results, urls...)
 	return results
 }
 
-func (a *App) Search(selected string) []string {
-	return fuzzy.FindNormalizedFold(selected, results)
+func (a *App) Search(selected string) []Resource {
+
+	sources := lo.Map(results, func(r Resource, _ int) string {
+		return r.Name
+	})
+	filteredSources := fuzzy.FindNormalizedFold(selected, sources)
+	filteredResults := lo.FilterMap(results, func(r Resource, _ int) (Resource, bool) {
+		if lo.Contains(filteredSources, r.Name) {
+			return r, true
+		}
+		return r, false
+	})
+
+	return filteredResults
 }
 
 func (a *App) Exec(selected string) {
