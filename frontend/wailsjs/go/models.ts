@@ -4,6 +4,7 @@ export namespace main {
 	    name: string;
 	    info: string;
 	    target: string;
+	    tag: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Resource(source);
@@ -14,6 +15,7 @@ export namespace main {
 	        this.name = source["name"];
 	        this.info = source["info"];
 	        this.target = source["target"];
+	        this.tag = source["tag"];
 	    }
 	}
 

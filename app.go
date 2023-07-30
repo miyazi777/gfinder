@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"os/exec"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -37,6 +39,11 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
+type InputResoruce struct {
+	Name string `json:"name"`
+	Info string `json:"info"`
+}
+
 type Resource struct {
 	Name   string   `json:"name"`
 	Info   string   `json:"info"`
@@ -50,48 +57,37 @@ type Plugin struct {
 var results []Resource
 
 func (a *App) GetInitialList() []Resource {
-	results = []Resource{}
-
-	// targetを自動生成すること
-	urls := []Resource{
-		{
-			Name:   "backend-api",
-			Info:   "/home/takeshi-miyajima/workspace_highway/product1/backend-api",
-			Target: "1. backend-api /home/takeshi-miyajima/workspace_highway/product1/backend-api",
-			Tag:    []string{"cd"},
-		},
-		{
-			Name:   "frontend-web",
-			Info:   "/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
-			Target: "2. frontend-web /home/takeshi-miyajima/workspace_highway/product1/frontend-web",
-			Tag:    []string{"cd"},
-		},
-		{
-			Name:   "workspace_highway memo",
-			Info:   "/home/takeshi-miyajima/workspace_highway/memo",
-			Target: "3. workspace_hiway memo /home/takeshi-miyajima/workspace_highway/memo",
-			Tag:    []string{"cd"},
-		},
-		{
-			Name:   "private memo",
-			Info:   "/home/takeshi-miyajima/private/memo",
-			Target: "4. private memo /home/takeshi-miyajima/private/memo",
-			Tag:    []string{"cd"},
-		},
+	input, err := exec.Command("./test.sh").Output()
+	if err != nil {
+		log.Fatal(err)
 	}
-	results = append(results, urls...)
+
+	inputs := []InputResoruce{}
+	if err := json.Unmarshal(input, &inputs); err != nil {
+		log.Fatal(err)
+	}
+
+	results = []Resource{}
+	for idx, input := range inputs {
+		results = append(results, Resource{
+			Name:   input.Name,
+			Info:   input.Info,
+			Target: fmt.Sprintf("%d. %s %s", idx+1, input.Name, input.Info),
+		})
+	}
+
 	return results
 }
 
 func (a *App) Search(selected string) []Resource {
 
-	sources := lo.Map(results, func(r Resource, _ int) string {
+	targets := lo.Map(results, func(r Resource, _ int) string {
 		return r.Target
 	})
-	// 単語数分、ループしてさらに絞り込む
-	filteredSources := fuzzy.FindNormalizedFold(selected, sources)
+	// TODO: 単語数分、ループしてさらに絞り込む
+	filteredTargets := fuzzy.FindNormalizedFold(selected, targets)
 	filteredResults := lo.FilterMap(results, func(r Resource, _ int) (Resource, bool) {
-		if lo.Contains(filteredSources, r.Target) {
+		if lo.Contains(filteredTargets, r.Target) {
 			return r, true
 		}
 		return r, false
@@ -100,9 +96,9 @@ func (a *App) Search(selected string) []Resource {
 	return filteredResults
 }
 
-func (a *App) Exec(selected string) {
+func (a *App) Exec(selected Resource) {
 	shell := "zsh"
-	cmdStr := fmt.Sprintf("cd $HOME; cd %s; %s", selected, shell)
+	cmdStr := fmt.Sprintf("cd $HOME; cd %s; %s", selected.Info, shell)
 	args := []string{"--", shell, "-c", cmdStr}
 	cmd := exec.Command("/usr/bin/gnome-terminal", args...)
 	cmd.Run()

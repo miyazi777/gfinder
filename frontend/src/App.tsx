@@ -19,7 +19,7 @@ function App() {
     }, [])
 
     const handleEnter = () => {
-        Exec(results[selected].name);
+        Exec(results[selected]);
     }
 
     const handleQuit = () => {
