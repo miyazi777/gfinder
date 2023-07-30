@@ -1,23 +1,21 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import './App.css';
-import {Greet, Quit} from "../wailsjs/go/main/App";
+import {GetSources, Greet, Quit} from "../wailsjs/go/main/App";
 
 function App() {
     const [selected, setSelected] = useState(0);
+    const [word, setWord] = useState("");
+    const [results, setResults] = useState<string[]>([]);
 
     const ref = useCallback((node: HTMLDivElement | null) => {
         node?.focus()
     }, [])
 
-    const results = [
-        "test1",
-        "test2",
-        "test3",
-        "test4",
-        "test5",
-        "test6",
-        "test7",
-    ];
+    useEffect(() => {
+        GetSources().then((sources: string[]) => {
+            setResults(sources);
+        });
+    }, [])
 
     const handleEnter = () => {
         console.log('selected', results[selected]);
@@ -28,6 +26,9 @@ function App() {
         Quit();
     }
 
+    const handleChange = (value: string) => {
+        setWord(value);
+    }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         const key = e.code;
@@ -53,7 +54,7 @@ function App() {
     return (
         <div id="App" onKeyDown={handleKeyDown}>
             <div id="word">
-              <input type="text" ref={ref} />
+              <input type="text" ref={ref} value={word} onChange={e => handleChange(e.target.value)} />
             </div>
             <div id="results">
                 {results.map((result, index) => (

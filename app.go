@@ -29,6 +29,28 @@ func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
+// Quit the application
 func (a *App) Quit() {
 	runtime.Quit(a.ctx)
+}
+
+var results = []string{
+	"item1",
+	"item2",
+	"item3",
+	"item4",
+	"item5",
+	"item6",
+	"item7",
+	"item8",
+	"item9",
+}
+
+func (a *App) GetSources() []string {
+	return results
+}
+
+func (a *App) Search() []string {
+
+	return results
 }
