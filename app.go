@@ -38,8 +38,9 @@ func (a *App) Quit() {
 }
 
 type Resource struct {
-	Name string `json:"name"`
-	Info string `json:"info"`
+	Name   string `json:"name"`
+	Info   string `json:"info"`
+	Target string `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
 }
 type Plugin struct {
 	List []Resource
@@ -52,16 +53,24 @@ func (a *App) GetInitialList() []Resource {
 
 	urls := []Resource{
 		{
-			Name: "/home/takeshi-miyajima/workspace_highway/product1/backend-api",
+			Name:   "backend-api",
+			Info:   "/home/takeshi-miyajima/workspace_highway/product1/backend-api",
+			Target: "1. backend-api /home/takeshi-miyajima/workspace_highway/product1/backend-api",
 		},
 		{
-			Name: "/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
+			Name:   "frontend-web",
+			Info:   "/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
+			Target: "2. frontend-web /home/takeshi-miyajima/workspace_highway/product1/frontend-web",
 		},
 		{
-			Name: "/home/takeshi-miyajima/workspace_highway/memo",
+			Name:   "workspace_highway memo",
+			Info:   "/home/takeshi-miyajima/workspace_highway/memo",
+			Target: "3. memo /home/takeshi-miyajima/workspace_highway/memo",
 		},
 		{
-			Name: "/home/takeshi-miyajima/private/memo",
+			Name:   "private memo",
+			Info:   "/home/takeshi-miyajima/private/memo",
+			Target: "4. memo /home/takeshi-miyajima/private/memo",
 		},
 	}
 	results = append(results, urls...)
@@ -71,11 +80,11 @@ func (a *App) GetInitialList() []Resource {
 func (a *App) Search(selected string) []Resource {
 
 	sources := lo.Map(results, func(r Resource, _ int) string {
-		return r.Name
+		return r.Target
 	})
 	filteredSources := fuzzy.FindNormalizedFold(selected, sources)
 	filteredResults := lo.FilterMap(results, func(r Resource, _ int) (Resource, bool) {
-		if lo.Contains(filteredSources, r.Name) {
+		if lo.Contains(filteredSources, r.Target) {
 			return r, true
 		}
 		return r, false

@@ -3,6 +3,7 @@ export namespace main {
 	export class Resource {
 	    name: string;
 	    info: string;
+	    target: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Resource(source);
@@ -12,6 +13,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.info = source["info"];
+	        this.target = source["target"];
 	    }
 	}
 
