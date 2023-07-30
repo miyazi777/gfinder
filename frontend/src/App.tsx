@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import './App.css';
-import {Exec, GetSources, Greet, Quit, Search} from "../wailsjs/go/main/App";
+import {Exec, GetInitialSources, Greet, Quit, Search} from "../wailsjs/go/main/App";
 
 function App() {
     const [selected, setSelected] = useState(0);
@@ -12,7 +12,7 @@ function App() {
     }, [])
 
     useEffect(() => {
-        GetSources().then((sources: string[]) => {
+        GetInitialSources().then((sources: string[]) => {
             setResults(sources);
         });
     }, [])

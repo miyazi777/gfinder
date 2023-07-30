@@ -6,8 +6,8 @@ export function Exec(arg1) {
   return window['go']['main']['App']['Exec'](arg1);
 }
 
-export function GetSources() {
-  return window['go']['main']['App']['GetSources']();
+export function GetInitialSources() {
+  return window['go']['main']['App']['GetInitialSources']();
 }
 
 export function Greet(arg1) {

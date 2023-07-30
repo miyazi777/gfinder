@@ -3,7 +3,7 @@
 
 export function Exec(arg1:string):Promise<void>;
 
-export function GetSources():Promise<Array<string>>;
+export function GetInitialSources():Promise<Array<string>>;
 
 export function Greet(arg1:string):Promise<string>;
 
