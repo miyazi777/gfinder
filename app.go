@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -50,7 +51,6 @@ func (a *App) GetSources() []string {
 	return results
 }
 
-func (a *App) Search() []string {
-
-	return results
+func (a *App) Search(selected string) []string {
+	return fuzzy.FindNormalizedFold(selected, results)
 }

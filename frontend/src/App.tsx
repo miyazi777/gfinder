@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import './App.css';
-import {GetSources, Greet, Quit} from "../wailsjs/go/main/App";
+import {GetSources, Greet, Quit, Search} from "../wailsjs/go/main/App";
 
 function App() {
     const [selected, setSelected] = useState(0);
@@ -28,6 +28,10 @@ function App() {
 
     const handleChange = (value: string) => {
         setWord(value);
+        Search(value).then(searchedResults => {
+            setResults(searchedResults)
+        })
+
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

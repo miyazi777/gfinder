@@ -7,4 +7,4 @@ export function Greet(arg1:string):Promise<string>;
 
 export function Quit():Promise<void>;
 
-export function Search():Promise<Array<string>>;
+export function Search(arg1:string):Promise<Array<string>>;
