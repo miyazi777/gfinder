@@ -1,0 +1,56 @@
+html {
+    background-color: rgb(231, 231, 211);
+    text-align: center;
+}
+
+body {
+    margin: 0;
+    color: rgb(80, 80, 80);
+    font-size: 20px;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""),
+    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+#app {
+    height: 100vh;
+    width: 100%;
+    text-align: center;
+}
+
+#word {
+    width: 100%;
+    height: 30px;
+    padding: 16px;
+    border-bottom: 2px dashed rgb(80, 80, 80)
+}
+
+#word input {
+    width: 100%;
+    height: 30px;
+    border: none;
+    background-color: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+#results {
+    height: 30px;
+    width: 100%;
+    padding: 8px;
+}
+
+.row {
+    margin: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
