@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react';
 import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import {Greet, Quit} from "../wailsjs/go/main/App";
 
 function App() {
     const [selected, setSelected] = useState(0);
@@ -25,8 +25,7 @@ function App() {
     }
 
     const handleQuit = () => {
-        console.log('quit');
-        // Quit();
+        Quit();
     }
 
 
