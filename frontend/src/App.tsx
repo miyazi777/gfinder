@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import './App.css';
-import {GetSources, Greet, Quit, Search} from "../wailsjs/go/main/App";
+import {Exec, GetSources, Greet, Quit, Search} from "../wailsjs/go/main/App";
 
 function App() {
     const [selected, setSelected] = useState(0);
@@ -18,8 +18,7 @@ function App() {
     }, [])
 
     const handleEnter = () => {
-        console.log('selected', results[selected]);
-        // Exec(results[selected]).then();
+        Exec(results[selected]);
     }
 
     const handleQuit = () => {

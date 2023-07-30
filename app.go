@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os/exec"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -35,22 +36,31 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
-var results = []string{
-	"item1",
-	"item2",
-	"item3",
-	"item4",
-	"item5",
-	"item6",
-	"item7",
-	"item8",
-	"item9",
-}
+var results []string
 
 func (a *App) GetSources() []string {
+	results = []string{}
+
+	urls := []string{
+		"/home/takeshi-miyajima/workspace_highway/product1/backend-api",
+		"/home/takeshi-miyajima/workspace_highway/product1/frontend-web",
+		"/home/takeshi-miyajima/workspace_highway/memo",
+		"/home/takeshi-miyajima/private/memo",
+	}
+	results = append(results, urls...)
 	return results
 }
 
 func (a *App) Search(selected string) []string {
 	return fuzzy.FindNormalizedFold(selected, results)
+}
+
+func (a *App) Exec(selected string) {
+	shell := "zsh"
+	cmdStr := fmt.Sprintf("cd $HOME; cd %s; %s", selected, shell)
+	args := []string{"--", shell, "-c", cmdStr}
+	cmd := exec.Command("/usr/bin/gnome-terminal", args...)
+	cmd.Run()
+
+	runtime.Quit(a.ctx)
 }
