@@ -38,7 +38,7 @@ func (a *App) Quit() {
 
 var results []string
 
-func (a *App) GetInitialSources() []string {
+func (a *App) GetInitialList() []string {
 	results = []string{}
 
 	urls := []string{
