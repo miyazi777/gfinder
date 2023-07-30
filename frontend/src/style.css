@@ -1,5 +1,5 @@
 html {
-    background-color: rgb(231, 231, 211);
+    background-color: rgb(232, 232, 210);
     text-align: center;
 }
 
@@ -45,12 +45,27 @@ body {
 #results {
     height: 30px;
     width: 100%;
-    padding: 8px;
+    padding: 0px;
 }
 
 .row {
-    margin: 8px;
+    margin: 0;
+    padding: 8px 0 8px 16px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.row:nth-child(even) {
+    background-color: rgb(222, 222, 210);
+}
+
+.selected {
+    background-color: rgb(80, 80, 80);
+    color: rgb(232, 232, 210);
+}
+
+.selected:nth-child(even) {
+    background-color: rgb(80, 80, 80);
+    color: rgb(232, 232, 210);
 }
