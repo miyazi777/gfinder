@@ -6,7 +6,7 @@ import {main} from "../wailsjs/go/models";
 function App() {
     const [selected, setSelected] = useState(0);
     const [word, setWord] = useState("");
-    const [results, setResults] = useState<main.Resource[]>([]);
+    const [results, setResults] = useState<main.InnerResource[]>([]);
 
     const ref = useCallback((node: HTMLDivElement | null) => {
         node?.focus()

@@ -1,13 +1,13 @@
 export namespace main {
 	
-	export class Resource {
+	export class InnerResource {
 	    name: string;
 	    info: string;
 	    target: string;
-	    tag: string[];
+	    tag: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new Resource(source);
+	        return new InnerResource(source);
 	    }
 	
 	    constructor(source: any = {}) {

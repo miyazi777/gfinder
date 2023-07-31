@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/samber/lo"
@@ -44,19 +45,28 @@ type InputResoruce struct {
 	Info string `json:"info"`
 }
 
-type Resource struct {
-	Name   string   `json:"name"`
-	Info   string   `json:"info"`
-	Target string   `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
-	Tag    []string `json:"tag"`
-}
 type Plugin struct {
-	List []Resource
+	Command        string          `json:"command"`
+	CommandArgs    []string        `json:"command_args"`
+	InputResources []InputResoruce `json:"input_resources"`
 }
 
-var results []Resource
+var plugin Plugin = Plugin{
+	Command:        "/usr/bin/gnome-terminal",
+	CommandArgs:    []string{"--", "zsh", "-c", "cd $HOME; cd ${info}; zsh"},
+	InputResources: []InputResoruce{},
+}
 
-func (a *App) GetInitialList() []Resource {
+type InnerResource struct {
+	Name   string `json:"name"`
+	Info   string `json:"info"`
+	Target string `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Tag    string `json:"tag"`
+}
+
+var innerResources []InnerResource
+
+func (a *App) GetInitialList() []InnerResource {
 	input, err := exec.Command("./test.sh").Output()
 	if err != nil {
 		log.Fatal(err)
@@ -67,26 +77,26 @@ func (a *App) GetInitialList() []Resource {
 		log.Fatal(err)
 	}
 
-	results = []Resource{}
+	innerResources = []InnerResource{}
 	for idx, input := range inputs {
-		results = append(results, Resource{
+		innerResources = append(innerResources, InnerResource{
 			Name:   input.Name,
 			Info:   input.Info,
 			Target: fmt.Sprintf("%d. %s %s", idx+1, input.Name, input.Info),
 		})
 	}
 
-	return results
+	return innerResources
 }
 
-func (a *App) Search(selected string) []Resource {
+func (a *App) Search(selected string) []InnerResource {
 
-	targets := lo.Map(results, func(r Resource, _ int) string {
+	targets := lo.Map(innerResources, func(r InnerResource, _ int) string {
 		return r.Target
 	})
 	// TODO: 単語数分、ループしてさらに絞り込む
 	filteredTargets := fuzzy.FindNormalizedFold(selected, targets)
-	filteredResults := lo.FilterMap(results, func(r Resource, _ int) (Resource, bool) {
+	filteredResults := lo.FilterMap(innerResources, func(r InnerResource, _ int) (InnerResource, bool) {
 		if lo.Contains(filteredTargets, r.Target) {
 			return r, true
 		}
@@ -96,11 +106,14 @@ func (a *App) Search(selected string) []Resource {
 	return filteredResults
 }
 
-func (a *App) Exec(selected Resource) {
-	shell := "zsh"
-	cmdStr := fmt.Sprintf("cd $HOME; cd %s; %s", selected.Info, shell)
-	args := []string{"--", shell, "-c", cmdStr}
-	cmd := exec.Command("/usr/bin/gnome-terminal", args...)
+func (a *App) Exec(selected InnerResource) {
+	newArgs := []string{}
+	for _, arg := range plugin.CommandArgs {
+		newArg := strings.Replace(arg, "${name}", selected.Name, -1)
+		newArg = strings.Replace(newArg, "${info}", selected.Info, -1)
+		newArgs = append(newArgs, newArg)
+	}
+	cmd := exec.Command(plugin.Command, newArgs...)
 	cmd.Run()
 
 	runtime.Quit(a.ctx)
