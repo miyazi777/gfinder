@@ -41,8 +41,9 @@ func (a *App) Quit() {
 }
 
 type InputResoruce struct {
-	Name string `json:"name"`
-	Info string `json:"info"`
+	Name    string `json:"name"`
+	Info    string `json:"info"`
+	Command string `json:"command"`
 }
 
 type Plugin struct {
@@ -53,16 +54,13 @@ type Plugin struct {
 
 var plugin Plugin
 
-// 	Command:        "/usr/bin/gnome-terminal",
-// 	CommandArgs:    []string{"--", "zsh", "-c", "cd $HOME; cd ${info}; zsh"},
-// 	InputResources: []InputResoruce{},
-// }
-
 type InnerResource struct {
-	Name   string `json:"name"`
-	Info   string `json:"info"`
-	Target string `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
-	Tag    string `json:"tag"`
+	Name        string   `json:"name"`
+	Info        string   `json:"info"`
+	Target      string   `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Tag         string   `json:"tag"`
+	Command     string   `json:"command"`
+	CommandArgs []string `json:"command_args"`
 }
 
 var innerResources []InnerResource
@@ -80,9 +78,11 @@ func (a *App) GetInitialList() []InnerResource {
 	innerResources = []InnerResource{}
 	for idx, inputResource := range plugin.InputResources {
 		innerResources = append(innerResources, InnerResource{
-			Name:   inputResource.Name,
-			Info:   inputResource.Info,
-			Target: fmt.Sprintf("%d. %s %s", idx+1, inputResource.Name, inputResource.Info),
+			Name:        inputResource.Name,
+			Info:        inputResource.Info,
+			Target:      fmt.Sprintf("%d. %s %s", idx+1, inputResource.Name, inputResource.Info),
+			Command:     plugin.Command,
+			CommandArgs: plugin.CommandArgs,
 		})
 	}
 
@@ -96,6 +96,7 @@ func (a *App) Search(selected string) []InnerResource {
 	})
 	// TODO: 単語数分、ループしてさらに絞り込む
 	filteredTargets := fuzzy.FindNormalizedFold(selected, targets)
+
 	filteredResults := lo.FilterMap(innerResources, func(r InnerResource, _ int) (InnerResource, bool) {
 		if lo.Contains(filteredTargets, r.Target) {
 			return r, true
@@ -108,12 +109,12 @@ func (a *App) Search(selected string) []InnerResource {
 
 func (a *App) Exec(selected InnerResource) {
 	newArgs := []string{}
-	for _, arg := range plugin.CommandArgs {
+	for _, arg := range selected.CommandArgs {
 		newArg := strings.Replace(arg, "${name}", selected.Name, -1)
 		newArg = strings.Replace(newArg, "${info}", selected.Info, -1)
 		newArgs = append(newArgs, newArg)
 	}
-	cmd := exec.Command(plugin.Command, newArgs...)
+	cmd := exec.Command(selected.Command, newArgs...)
 	cmd.Run()
 
 	runtime.Quit(a.ctx)

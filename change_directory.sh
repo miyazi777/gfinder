@@ -3,7 +3,7 @@
 echo '
   {
     "command": "/usr/bin/gnome-terminal",
-    "command_args": ["--", "zsh", "-c", "cd $HOME; cd ${info}; zsh"],
+    "command_args": ["--", "zsh", "-c", "cd ${info}; zsh"],
     "input_resources": [
       {
         "name": "xbackend-api",
