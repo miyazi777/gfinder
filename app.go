@@ -51,11 +51,12 @@ type Plugin struct {
 	InputResources []InputResoruce `json:"input_resources"`
 }
 
-var plugin Plugin = Plugin{
-	Command:        "/usr/bin/gnome-terminal",
-	CommandArgs:    []string{"--", "zsh", "-c", "cd $HOME; cd ${info}; zsh"},
-	InputResources: []InputResoruce{},
-}
+var plugin Plugin
+
+// 	Command:        "/usr/bin/gnome-terminal",
+// 	CommandArgs:    []string{"--", "zsh", "-c", "cd $HOME; cd ${info}; zsh"},
+// 	InputResources: []InputResoruce{},
+// }
 
 type InnerResource struct {
 	Name   string `json:"name"`
@@ -67,22 +68,21 @@ type InnerResource struct {
 var innerResources []InnerResource
 
 func (a *App) GetInitialList() []InnerResource {
-	input, err := exec.Command("./test.sh").Output()
+	input, err := exec.Command("./change_directory.sh").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	inputs := []InputResoruce{}
-	if err := json.Unmarshal(input, &inputs); err != nil {
+	if err := json.Unmarshal(input, &plugin); err != nil {
 		log.Fatal(err)
 	}
 
 	innerResources = []InnerResource{}
-	for idx, input := range inputs {
+	for idx, inputResource := range plugin.InputResources {
 		innerResources = append(innerResources, InnerResource{
-			Name:   input.Name,
-			Info:   input.Info,
-			Target: fmt.Sprintf("%d. %s %s", idx+1, input.Name, input.Info),
+			Name:   inputResource.Name,
+			Info:   inputResource.Info,
+			Target: fmt.Sprintf("%d. %s %s", idx+1, inputResource.Name, inputResource.Info),
 		})
 	}
 
