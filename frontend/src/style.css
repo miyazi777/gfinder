@@ -69,3 +69,12 @@ body {
     background-color: rgb(80, 80, 80);
     color: rgb(232, 232, 210);
 }
+
+.row .name {
+    text-align: left;
+}
+
+.row .info {
+    text-align: left;
+    font-size: 14px;
+}

@@ -63,7 +63,10 @@ function App() {
             <div id="results">
                 {results.map((result, index) => (
                     <div key={index} className={`row ${index === selected ? "selected" : ""}`}>
-                        <div>{result.name}</div>
+                        <div>
+                            <div className="name">{result.name}</div>
+                            <div className="info">{result.info}</div>
+                        </div>
                     </div>
                 ))}
             </div>
