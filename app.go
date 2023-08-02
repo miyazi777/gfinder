@@ -53,8 +53,6 @@ type Plugin struct {
 	InputResources []InputResoruce `json:"input_resources"`
 }
 
-var plugin Plugin
-
 type InnerResource struct {
 	Name        string   `json:"name"`
 	Info        string   `json:"info"`
@@ -67,25 +65,32 @@ type InnerResource struct {
 var innerResources []InnerResource
 
 func (a *App) GetInitialList() []InnerResource {
-	input, err := exec.Command("./change_directory.sh").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := json.Unmarshal(input, &plugin); err != nil {
-		log.Fatal(err)
-	}
+	pluginDirs := []string{"./change_directory.sh", "./greeting.sh"}
 
 	innerResources = []InnerResource{}
-	for idx, inputResource := range plugin.InputResources {
-		innerResources = append(innerResources, InnerResource{
-			Name:        inputResource.Name,
-			Info:        inputResource.Info,
-			Tag:         plugin.Name,
-			Target:      fmt.Sprintf("%d. %s %s", idx+1, inputResource.Name, inputResource.Info),
-			Command:     plugin.Command,
-			CommandArgs: plugin.CommandArgs,
-		})
+	index := 0
+	for _, pluginDir := range pluginDirs {
+		input, err := exec.Command(pluginDir).Output()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		plugin := Plugin{}
+		if err := json.Unmarshal(input, &plugin); err != nil {
+			log.Fatal(err)
+		}
+
+		for _, inputResource := range plugin.InputResources {
+			innerResources = append(innerResources, InnerResource{
+				Name:        inputResource.Name,
+				Info:        inputResource.Info,
+				Tag:         plugin.Name,
+				Target:      fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
+				Command:     plugin.Command,
+				CommandArgs: plugin.CommandArgs,
+			})
+		}
+		index += 1
 	}
 
 	return innerResources
