@@ -47,6 +47,7 @@ type InputResoruce struct {
 }
 
 type Plugin struct {
+	Name           string          `json:"name"`
 	Command        string          `json:"command"`
 	CommandArgs    []string        `json:"command_args"`
 	InputResources []InputResoruce `json:"input_resources"`
@@ -80,6 +81,7 @@ func (a *App) GetInitialList() []InnerResource {
 		innerResources = append(innerResources, InnerResource{
 			Name:        inputResource.Name,
 			Info:        inputResource.Info,
+			Tag:         plugin.Name,
 			Target:      fmt.Sprintf("%d. %s %s", idx+1, inputResource.Name, inputResource.Info),
 			Command:     plugin.Command,
 			CommandArgs: plugin.CommandArgs,

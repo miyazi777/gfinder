@@ -67,6 +67,7 @@ function App() {
                             <div className="name">{result.name}</div>
                             <div className="info">{result.info}</div>
                         </div>
+                        <div className="tag">[{result.tag}]</div>
                     </div>
                 ))}
             </div>

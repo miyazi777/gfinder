@@ -2,6 +2,7 @@
 
 echo '
   {
+    "name": "change directory",
     "command": "/usr/bin/gnome-terminal",
     "command_args": ["--", "zsh", "-c", "cd ${info}; zsh"],
     "input_resources": [

@@ -54,6 +54,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 
 .row:nth-child(even) {
@@ -77,4 +78,9 @@ body {
 .row .info {
     text-align: left;
     font-size: 14px;
+}
+
+.row .tag {
+    vertical-align: middle;
+    font-weight: bold;
 }
