@@ -1,11 +1,11 @@
 package main
 
 import (
+	"changeme/config"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -41,16 +41,6 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
-type Config struct {
-	PluginConfigs []PluginConfig `json:"plugin_configs"`
-}
-
-type PluginConfig struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Mode string `json:"mode"`
-}
-
 type InputResoruce struct {
 	Name    string `json:"name"`
 	Info    string `json:"info"`
@@ -73,18 +63,10 @@ type InnerResource struct {
 	CommandArgs []string `json:"command_args"`
 }
 
-var config Config
 var innerResources []InnerResource
 
 func (a *App) GetInitialList() []InnerResource {
-	f, err := os.Open("./config.json")
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-	defer f.Close()
-
-	err = json.NewDecoder(f).Decode(&config)
+	config, err := config.NewConfig()
 	if err != nil {
 		log.Fatal(err)
 		return nil
