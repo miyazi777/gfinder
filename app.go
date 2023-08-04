@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -40,6 +41,16 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
+type Config struct {
+	PluginConfigs []PluginConfig `json:"plugin_configs"`
+}
+
+type PluginConfig struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+	Mode string `json:"mode"`
+}
+
 type InputResoruce struct {
 	Name    string `json:"name"`
 	Info    string `json:"info"`
@@ -56,28 +67,42 @@ type Plugin struct {
 type InnerResource struct {
 	Name        string   `json:"name"`
 	Info        string   `json:"info"`
-	Target      string   `json:"target"` // TODO: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Target      string   `json:"target"` // NOTE: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
 	Tag         string   `json:"tag"`
 	Command     string   `json:"command"`
 	CommandArgs []string `json:"command_args"`
 }
 
+var config Config
 var innerResources []InnerResource
 
 func (a *App) GetInitialList() []InnerResource {
-	pluginDirs := []string{"./change_directory.sh", "./greeting.sh"}
+	f, err := os.Open("./config.json")
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+	defer f.Close()
+
+	err = json.NewDecoder(f).Decode(&config)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
 
 	innerResources = []InnerResource{}
 	index := 0
-	for _, pluginDir := range pluginDirs {
-		input, err := exec.Command(pluginDir).Output()
+	for _, pluginConfig := range config.PluginConfigs {
+		input, err := exec.Command(pluginConfig.Path).Output()
 		if err != nil {
 			log.Fatal(err)
+			return nil
 		}
 
 		plugin := Plugin{}
 		if err := json.Unmarshal(input, &plugin); err != nil {
 			log.Fatal(err)
+			return nil
 		}
 
 		for _, inputResource := range plugin.InputResources {
