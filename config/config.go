@@ -17,7 +17,6 @@ var (
 )
 
 type PluginConfig struct {
-	Name       string     `json:"name"`
 	Path       string     `json:"path"`
 	PluginMode PluginMode `json:"plugin_mode"`
 }
