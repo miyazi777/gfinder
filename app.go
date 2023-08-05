@@ -1,7 +1,7 @@
 package main
 
 import (
-	"changeme/config"
+	configPkg "changeme/config"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -47,7 +47,13 @@ type InputResoruce struct {
 	Command string `json:"command"`
 }
 
-type Plugin struct {
+type PluginRow struct {
+	Name        string   `json:"name"`
+	Command     string   `json:"command"`
+	CommandArgs []string `json:"command_args"`
+}
+
+type PluginJson struct {
 	Name           string          `json:"name"`
 	Command        string          `json:"command"`
 	CommandArgs    []string        `json:"command_args"`
@@ -66,7 +72,7 @@ type InnerResource struct {
 var innerResources []InnerResource
 
 func (a *App) GetInitialList() []InnerResource {
-	config, err := config.NewConfig()
+	config, err := configPkg.NewConfig()
 	if err != nil {
 		log.Fatal(err)
 		return nil
@@ -81,21 +87,43 @@ func (a *App) GetInitialList() []InnerResource {
 			return nil
 		}
 
-		plugin := Plugin{}
-		if err := json.Unmarshal(input, &plugin); err != nil {
-			log.Fatal(err)
-			return nil
-		}
+		if pluginConfig.PluginMode == configPkg.PLUGIN_MODE_JSON {
+			plugin := PluginJson{}
+			if err := json.Unmarshal(input, &plugin); err != nil {
+				log.Fatal(err)
+				return nil
+			}
 
-		for _, inputResource := range plugin.InputResources {
-			innerResources = append(innerResources, InnerResource{
-				Name:        inputResource.Name,
-				Info:        inputResource.Info,
-				Tag:         plugin.Name,
-				Target:      fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
-				Command:     plugin.Command,
-				CommandArgs: plugin.CommandArgs,
-			})
+			for _, inputResource := range plugin.InputResources {
+				innerResources = append(innerResources, InnerResource{
+					Name:        inputResource.Name,
+					Info:        inputResource.Info,
+					Tag:         plugin.Name,
+					Target:      fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
+					Command:     plugin.Command,
+					CommandArgs: plugin.CommandArgs,
+				})
+			}
+		} else if pluginConfig.PluginMode == configPkg.PLUGIN_MODE_ROW {
+			rows := strings.Split(string(input), "\n")
+			plugin := PluginRow{}
+			for i, row := range rows {
+				if i == 0 {
+					if err := json.Unmarshal([]byte(row), &plugin); err != nil {
+						log.Fatal(err)
+						return nil
+					}
+					continue
+				}
+				innerResources = append(innerResources, InnerResource{
+					Name:        row,
+					Info:        "",
+					Tag:         plugin.Name,
+					Target:      fmt.Sprintf("%d, %s %s", index, plugin.Name, row),
+					Command:     plugin.Command,
+					CommandArgs: plugin.CommandArgs,
+				})
+			}
 		}
 		index += 1
 	}
@@ -128,8 +156,13 @@ func (a *App) Exec(selected InnerResource) {
 		newArg = strings.Replace(newArg, "${info}", selected.Info, -1)
 		newArgs = append(newArgs, newArg)
 	}
-	cmd := exec.Command(selected.Command, newArgs...)
-	cmd.Run()
+	replacedCommand := strings.ReplaceAll(selected.Command, "${name}", selected.Name)
+
+	cmd := exec.Command(replacedCommand, newArgs...)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	runtime.Quit(a.ctx)
 }

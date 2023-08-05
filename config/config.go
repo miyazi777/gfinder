@@ -12,8 +12,8 @@ type Config struct {
 type PluginMode string
 
 var (
-	PluginModeJson PluginMode = "json"
-	PluginModeRow  PluginMode = "row"
+	PLUGIN_MODE_JSON PluginMode = "json"
+	PLUGIN_MODE_ROW  PluginMode = "row"
 )
 
 type PluginConfig struct {
