@@ -48,25 +48,22 @@ type InputResoruce struct {
 }
 
 type PluginRow struct {
-	Name        string   `json:"name"`
-	Command     string   `json:"command"`
-	CommandArgs []string `json:"command_args"`
+	Name    string   `json:"name"`
+	Command []string `json:"command"`
 }
 
 type PluginJson struct {
 	Name           string          `json:"name"`
-	Command        string          `json:"command"`
-	CommandArgs    []string        `json:"command_args"`
+	Command        []string        `json:"command"`
 	InputResources []InputResoruce `json:"input_resources"`
 }
 
 type InnerResource struct {
-	Name        string   `json:"name"`
-	Info        string   `json:"info"`
-	Target      string   `json:"target"` // NOTE: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
-	Tag         string   `json:"tag"`
-	Command     string   `json:"command"`
-	CommandArgs []string `json:"command_args"`
+	Name    string   `json:"name"`
+	Info    string   `json:"info"`
+	Target  string   `json:"target"` // NOTE: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Tag     string   `json:"tag"`
+	Command []string `json:"command"`
 }
 
 var innerResources []InnerResource
@@ -96,12 +93,11 @@ func (a *App) GetInitialList() []InnerResource {
 
 			for _, inputResource := range plugin.InputResources {
 				innerResources = append(innerResources, InnerResource{
-					Name:        inputResource.Name,
-					Info:        inputResource.Info,
-					Tag:         plugin.Name,
-					Target:      fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
-					Command:     plugin.Command,
-					CommandArgs: plugin.CommandArgs,
+					Name:    inputResource.Name,
+					Info:    inputResource.Info,
+					Tag:     plugin.Name,
+					Target:  fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
+					Command: plugin.Command,
 				})
 			}
 		} else if pluginConfig.PluginMode == configPkg.PLUGIN_MODE_ROW {
@@ -116,12 +112,11 @@ func (a *App) GetInitialList() []InnerResource {
 					continue
 				}
 				innerResources = append(innerResources, InnerResource{
-					Name:        row,
-					Info:        "",
-					Tag:         plugin.Name,
-					Target:      fmt.Sprintf("%d, %s %s", index, plugin.Name, row),
-					Command:     plugin.Command,
-					CommandArgs: plugin.CommandArgs,
+					Name:    row,
+					Info:    "",
+					Tag:     plugin.Name,
+					Target:  fmt.Sprintf("%d, %s %s", index, plugin.Name, row),
+					Command: plugin.Command,
 				})
 			}
 		}
@@ -150,15 +145,18 @@ func (a *App) Search(selected string) []InnerResource {
 }
 
 func (a *App) Exec(selected InnerResource) {
-	newArgs := []string{}
-	for _, arg := range selected.CommandArgs {
+	args := []string{}
+	command := ""
+	for i, arg := range selected.Command {
+		if i == 0 {
+			command = arg
+			continue
+		}
 		newArg := strings.Replace(arg, "${name}", selected.Name, -1)
 		newArg = strings.Replace(newArg, "${info}", selected.Info, -1)
-		newArgs = append(newArgs, newArg)
+		args = append(args, newArg)
 	}
-	replacedCommand := strings.ReplaceAll(selected.Command, "${name}", selected.Name)
-
-	cmd := exec.Command(replacedCommand, newArgs...)
+	cmd := exec.Command(command, args...)
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
