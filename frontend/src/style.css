@@ -84,3 +84,10 @@ body {
     vertical-align: middle;
     font-weight: bold;
 }
+
+.confirmItem {
+    margin-top: 8px;
+    margin-left: 16px;
+    margin-bottom: 8px;
+    text-align: left;
+}

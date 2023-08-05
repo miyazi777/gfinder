@@ -7,7 +7,7 @@ function App() {
     const [selected, setSelected] = useState(0);
     const [word, setWord] = useState("");
     const [results, setResults] = useState<main.InnerResource[]>([]);
-    const [isShowConfirmModal, setIsShowConfirmModal] = useState(false);
+    const [isShowConfirm, setIsShowConfirmModal] = useState(false);
     const [confirmSelected, setConfirmSelected] = useState(0);
 
     const ref = useCallback((node: HTMLDivElement | null) => {
@@ -52,18 +52,18 @@ function App() {
         switch (key) {
             case 'Up':
             case 'ArrowUp':
-                isShowConfirmModal ?
+                isShowConfirm ?
                     setConfirmSelected((confirmSelected - 1) < 0 ? confirmItems.length - 1 : confirmSelected - 1) :
                     setSelected((selected - 1) < 0 ? results.length - 1 : selected - 1);
                 break;
             case 'Down': 
             case 'ArrowDown': 
-                isShowConfirmModal ?
+                isShowConfirm ?
                     setConfirmSelected((confirmSelected - 1) >= confirmItems.length ? 0 : confirmSelected + 1) :
                     setSelected((selected + 1) >= results.length ? 0 : selected + 1);
                 break;
             case 'Enter':
-                isShowConfirmModal ? handleConfirmEnter() : handleEnter();
+                isShowConfirm ? handleConfirmEnter() : handleEnter();
                 break;
             case 'Escape':  
                 handleQuit();
@@ -80,7 +80,7 @@ function App() {
                     <div id="word">
                       <input type="text" ref={ref} value={word} onChange={e => handleChange(e.target.value)} />
                     </div>
-                    {!isShowConfirmModal && (
+                    {!isShowConfirm && (
                         <div id="results">
                             {results.map((result, index) => (
                                 <div key={index} className={`row ${index === selected ? "selected" : ""}`}>
@@ -93,9 +93,9 @@ function App() {
                             ))}
                         </div>
                     )}
-                    {isShowConfirmModal && (
+                    {isShowConfirm && (
                         <div id="results">
-                            <div>{results[selected].name}</div>
+                            <div className="confirmItem">{results[selected].name}, Continue?</div>
                             {confirmItems.map((item, index) => (
                                 <div key={index} className={`row ${index === confirmSelected ? "selected" : ""}`}>
                                     <div>{item}</div>
