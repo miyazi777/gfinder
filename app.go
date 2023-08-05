@@ -41,12 +41,6 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
-type InputResoruce struct {
-	Name    string `json:"name"`
-	Info    string `json:"info"`
-	Command string `json:"command"`
-}
-
 type PluginRow struct {
 	Name    string   `json:"name"`
 	Command []string `json:"command"`
@@ -56,6 +50,12 @@ type PluginJson struct {
 	Name           string          `json:"name"`
 	Command        []string        `json:"command"`
 	InputResources []InputResoruce `json:"input_resources"`
+}
+
+type InputResoruce struct {
+	Name    string   `json:"name"`
+	Info    string   `json:"info"`
+	Command []string `json:"command"`
 }
 
 type InnerResource struct {
@@ -92,12 +92,17 @@ func (a *App) GetInitialList() []InnerResource {
 			}
 
 			for _, inputResource := range plugin.InputResources {
+				command := plugin.Command
+				if len(inputResource.Command) > 0 {
+					command = inputResource.Command
+				}
+
 				innerResources = append(innerResources, InnerResource{
 					Name:    inputResource.Name,
 					Info:    inputResource.Info,
 					Tag:     plugin.Name,
 					Target:  fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
-					Command: plugin.Command,
+					Command: command,
 				})
 			}
 		} else if pluginConfig.PluginMode == configPkg.PLUGIN_MODE_ROW {
