@@ -6,6 +6,7 @@ export namespace main {
 	    target: string;
 	    tag: string;
 	    command: string[];
+	    confirm_dialog: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new InnerResource(source);
@@ -18,6 +19,7 @@ export namespace main {
 	        this.target = source["target"];
 	        this.tag = source["tag"];
 	        this.command = source["command"];
+	        this.confirm_dialog = source["confirm_dialog"];
 	    }
 	}
 

@@ -53,17 +53,19 @@ type PluginJson struct {
 }
 
 type InputResoruce struct {
-	Name    string   `json:"name"`
-	Info    string   `json:"info"`
-	Command []string `json:"command"`
+	Name          string   `json:"name"`
+	Info          string   `json:"info"`
+	Command       []string `json:"command"`
+	ConfirmDialog bool     `json:"confirm_dialog"`
 }
 
 type InnerResource struct {
-	Name    string   `json:"name"`
-	Info    string   `json:"info"`
-	Target  string   `json:"target"` // NOTE: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
-	Tag     string   `json:"tag"`
-	Command []string `json:"command"`
+	Name          string   `json:"name"`
+	Info          string   `json:"info"`
+	Target        string   `json:"target"` // NOTE: これを検索対象とする。ついでに必ずユニークになるように内部的に番号を振る
+	Tag           string   `json:"tag"`
+	Command       []string `json:"command"`
+	ConfirmDialog bool     `json:"confirm_dialog"`
 }
 
 var innerResources []InnerResource
@@ -98,11 +100,12 @@ func (a *App) GetInitialList() []InnerResource {
 				}
 
 				innerResources = append(innerResources, InnerResource{
-					Name:    inputResource.Name,
-					Info:    inputResource.Info,
-					Tag:     plugin.Name,
-					Target:  fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
-					Command: command,
+					Name:          inputResource.Name,
+					Info:          inputResource.Info,
+					Tag:           plugin.Name,
+					Target:        fmt.Sprintf("%d. %s %s %s", index+1, plugin.Name, inputResource.Name, inputResource.Info),
+					Command:       command,
+					ConfirmDialog: inputResource.ConfirmDialog,
 				})
 			}
 		} else if pluginConfig.PluginMode == configPkg.PLUGIN_MODE_ROW {
